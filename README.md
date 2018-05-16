@@ -35,11 +35,6 @@ definitions:
       execute:
           $baremetal = true
 ```
-
-**vagrant command**
-
-`vagrant baremetal status`
-
 **Vagrantfile**
 
 ```
@@ -53,6 +48,10 @@ if $baremetal
 	exit
 end
 ```
+
+**vagrant command**
+
+`vagrant baremetal status`
 
 What the above hints at is a unified management of both *bare metal* **and** *virtual* under the vagrant umbrella. Yes, there are plugins that already allow this, but I chose to forgo these in favor of this much more ad hoc approach.
 

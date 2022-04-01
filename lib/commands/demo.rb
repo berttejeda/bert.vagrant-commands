@@ -17,8 +17,8 @@ opt_parser = OptionParser.new do |opt| # https://ruby-doc.org/stdlib-2.6.5/libdo
   opt.on("-r","--run-command <command>","specify a shell command to run") do |runcmd|
     options[:runcmd] = runcmd
   end
-  opt.on("-f","--touch-file </path/to/file>","Create an empty file") do |touchfile|
-    options[:touchfile] = touchfile
+  opt.on("-f","--create-file </path/to/file>","Create an empty file") do |createfile|
+    options[:createfile] = createfile
   end  
   opt.on("-h","--help","help") do
     puts opt_parser
@@ -51,11 +51,11 @@ if options[:runcmd]
   @process.run(options[:runcmd])
 end
 
-if options[:touchfile]
+if options[:createfile]
   require 'util/process'
   @fso = VCMDUtilFSO::Controller.new
-  puts "Creating file #{options[:touchfile]} with contents 0000"
-  @fso.write(options[:touchfile], '0000')
+  puts "Creating empty file #{options[:createfile]}"
+  @fso.write(options[:createfile], '')
 end
 
 if options[:showconfig]

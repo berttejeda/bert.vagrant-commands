@@ -1,0 +1,19 @@
+---
+settings:
+  vagrant:
+    api_version: 2
+    require_version: ">= 2.1.0"
+    tmpdir: ".vagrant/tmp"
+    separate_dotfile_paths: true
+    commands:
+      noexec: <%= Dir.glob("lib/commands/*.rb").map { |file| File.basename(file, ".rb") } %>
+      adhoc: 
+        files: lib/commands/*.rb
+      timeout: 60
+    vm_network_default_mode: 'private_network'
+    vm_usable_port_range_start: 2200
+    vm_usable_port_range_end: 10000
+    local_data_dir: <%= ENV['VAGRANT_DOTFILE_PATH'].gsub('\\', '/') rescue '.vagrant' %>
+    basedir:
+      posix: '<%= Dir.pwd %>'
+      windows: '/vagrant'

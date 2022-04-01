@@ -1,62 +1,65 @@
 # Overview
 
 In my need to define custom vagrant commands, 
-
 I stumbled upon the undocumented Vagrant **.vagrantplugins** feature.
 
-I hijacked the file to leverage ruby [meta-programming](http://ruby-metaprogramming.rubylearning.com/html/ruby_metaprogramming_3.html) and [yaml](http://yaml.org/YAML_for_ruby.html) parsing to abstract away ruby code exposed as vagrant commands. 
-
-Have a look at the two files that make this possible:
-
-- [.vagrantplugins](.vagrantplugins)
-- [commands.yaml](etc/commands.yaml)
-
-You'll note that in the **commands.yaml** file I've defined two commands, `foo` and `bar`, each with their corresponding block of ruby code.
-
-These commands are immediately available to your vagrant environment. You can verify this by issuing `vagrant list-commands`.
+I hijacked the file to leverage ruby 
+[meta-programming](http://ruby-metaprogramming.rubylearning.com/html/ruby_metaprogramming_3.html) 
+and [yaml](http://yaml.org/YAML_for_ruby.html) 
+parsing to create custom vagrant commands.
 
 I believe this can be a powerful way to augment the behavior of your vagrant deployment.
 
-# Usage Examples
+# How it's done
 
-Here's how I use this in my vagrant setup:
+Here's the sequence of events that make this possible:
 
-Given: 
+| File                                         | Purpose                                                                                            |
+|:---------------------------------------------|:---------------------------------------------------------------------------------------------------|
+| [.vagrantplugins](.vagrantplugins)           | Initializes the ruby LOAD_PATH and lazy-loads [lib/util/commands.rb](lib/util/commands.rb)         |
+| [lib/util/commands.rb](lib/util/commands.rb) | Lazy-loads ruby code under lib/commands to be made available as custom Vagrant commands            |
+| [Vagrantfile](Vagrantfile)                   | Loads [lib/config/reader.rb](lib/config/reader.rb) and initializes any virtual machine definitions |
+| [lib/config/reader.rb](lib/config/reader.rb) | Initializes global settings values as defined under [etc/settings\/\*.yaml](etc/settings)          |
 
-**commands.yaml**
+# etc/settings
 
-```
+As hinted in the table above, any \*.yaml files under [etc/settings\/\*.yaml](etc/settings) 
+are evaluated as globally-scopped hashes. Take for example [etc/settings/user.yaml](etc/settings/user.yaml):
+
+```yaml
 ---
-definitions:
-  commands:
-    baremetal:
-      name: baremetal
-      synopsis: Sets baremetal boolean to true
-      execute:
-          $baremetal = true
-```
-**Vagrantfile**
-
-```
-if $baremetal
-	baremetal = {
-	"name"=>"baremetal01", "provider"=>"baremetal", "ip"=>"192.168.1.110", "ssh_user"=>"root", "ssh_port"=>22
-	}
-	printf "%-#{10}s %s\n", 'node name', 'state'
-	# Here I insert logic to ping the baremetal node and report it status
-	printf "%-#{10}s %s\n", baremetal['name'], 'running'
-	exit
-end
+settings:
+  user:
+    homedir: "<%= File.expand_path('~') %>"
+    name: "<%= ENV['USER'] || ENV['USERNAME'] %>"
 ```
 
-**vagrant command**
+The above will be interpreted as the $user hash object with properties `homedir` and `name`,
+and can be accessed anywhere in the Vagrantfile or in custom commands, as with:
+`$user.homedir`, `$user.name`.
 
-`vagrant baremetal status`
+Note: The `settings` parent key is **not** evaluated as part of the data structure.
 
-What the above hints at is a unified management of both *bare metal* **and** *virtual* under the vagrant umbrella. Yes, there are plugins that already allow this, but I chose to forgo these in favor of this much more ad hoc approach.
+# Custom Command Files
+
+Some things to consider:
+
+- A given custom command is just plain ruby code
+- Any ruby code you place under [lib/commands\/\*.rb](lib/commands) <br />
+  will be interpreted as a vagrant custom command
+- The first line of the command file should be a commented-out line <br />
+  This serves as the command's description when you run `vagrant list-commands`
+
+## A demo Custom Command File
+
+As an example, I've included a demo custom command: [lib/commands/demo.rb](lib/commands/demo.rb)
+
+To invoke its help output, you can run `vagrant demo --help`
+
 
 # Caveats
 
-Again, the `.vagrantplugins` file is not officially supported by Hashicorp, so if you encounter a bug, you'll probably have to figure it out on your own or do some internet sleuthing. 
+The `.vagrantplugins` file is not officially supported by Hashicorp, so if you encounter a bug, 
+you'll probably have to figure it out on your own or do some internet sleuthing. 
 
 It still remains a means to inject custom ruby code into vagrant.

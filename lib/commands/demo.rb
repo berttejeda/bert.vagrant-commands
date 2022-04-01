@@ -1,4 +1,5 @@
 # Demo custom commands
+
 options = {}
 opt_parser = OptionParser.new do |opt| # https://ruby-doc.org/stdlib-2.6.5/libdoc/optparse/rdoc/OptionParser.html
   opt.banner = "Usage: vagrant demo [foo|bar] [options]"
@@ -15,7 +16,10 @@ opt_parser = OptionParser.new do |opt| # https://ruby-doc.org/stdlib-2.6.5/libdo
   end  
   opt.on("-r","--run-command <command>","specify a shell command to run") do |runcmd|
     options[:runcmd] = runcmd
-  end    
+  end
+  opt.on("-f","--touch-file </path/to/file>","Create an empty file") do |touchfile|
+    options[:touchfile] = touchfile
+  end  
   opt.on("-h","--help","help") do
     puts opt_parser
     exit
@@ -41,9 +45,18 @@ if options[:option_2]
 end
 
 if options[:runcmd]
+  require 'util/process'
+  @process = VCMDUtilProcess::Controller.new  
   puts "Running command '#{options[:runcmd]}'"
-  Vagrant::Util::Subprocess.execute(options[:runcmd])
-end 
+  @process.run(options[:runcmd])
+end
+
+if options[:touchfile]
+  require 'util/process'
+  @fso = VCMDUtilFSO::Controller.new
+  puts "Creating file #{options[:touchfile]} with contents 0000"
+  @fso.write(options[:touchfile], '0000')
+end
 
 if options[:showconfig]
   puts "Displaying username and homedir values from etc/settings/user.yaml"

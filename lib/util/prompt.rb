@@ -1,4 +1,4 @@
-module VenvUtilPrompt
+module VCMDUtilPrompt
 
 	class Prompt
 

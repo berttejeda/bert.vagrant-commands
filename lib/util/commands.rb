@@ -12,7 +12,7 @@ Dir.glob($vagrant.commands.adhoc.files).each do |cmdf|
   command_class_name = File.basename(cmdf,".*").capitalize()
   cmdf_first_line = strVar = File.open(cmdf, &:readline)
   if !cmdf_first_line.start_with?('#')
-    $logger.error($errors.commands.ad_hoc.synopsis % cmdf)
+    $logger.error("First line of #{cmdf} must be a comment!")
     next
   end
   command_synopsis = cmdf_first_line[2...-2]

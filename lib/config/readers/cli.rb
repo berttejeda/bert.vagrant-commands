@@ -1,5 +1,6 @@
 require 'util/fso'
-include VenvUtilFSO # loads the fso_mkdir function, among others
+include VCMDUtilFSO # loads the fso_mkdir function, among others
+@fso = VCMDUtilFSO::Controller.new  
 
 # Clone the ARGV array for later use, rejecting any hyphenated arguments
 $vagrant_args = ARGV.clone
@@ -43,6 +44,6 @@ paths = [
 ]
 if Dir.pwd == $_VAGRANT_PROJECT_ROOT
 	paths.each do |directory|
-	  fso_mkdir(directory)
+	  @fso.mkdir(directory)
 	end
 end

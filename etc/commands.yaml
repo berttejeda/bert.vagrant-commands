@@ -1,13 +1,25 @@
 ---
 definitions:
   commands:
-    foo:
-      name: foo
-      synopsis: Sets foo to the string bar
-      execute:
-          $foo = 'bar'
-    bar:
-      name: bar
-      synopsis: Sets bar to the string baz
-      execute:
-          $bar = 'baz'
+    command1:
+      name: command1
+      synopsis: Invoke expression for command1
+      expression: |-
+          $myvar1 = 'value1'
+          puts "Hello #{ENV['USERNAME']}, value for myvar1 is #{$myvar1}"
+    command2:
+      name: command2
+      synopsis: Invoke expression for command2
+      expression: |-
+          $myvar2 = 'value2'
+          puts "Hello #{ENV['USERNAME']}, value for myvar2 is #{$myvar2}"
+# This is an ERB template
+# so we can do stuff like this:
+<% if 1 == 1 %>
+    command3:
+      name: command3
+      synopsis: Invoke expression for command3
+      expression: |-
+          $myvar3 = 'value3'
+          puts "Hello #{ENV['USERNAME']}, value for myvar1 is #{$myvar3}"
+<% end %>    

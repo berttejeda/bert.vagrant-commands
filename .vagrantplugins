@@ -14,7 +14,7 @@ $commands.marshal_dump.each do |command,properties|
       '#{properties.synopsis}'
     end
     def execute() 
-      #{properties.execute}
+      #{properties.expression}
     end 
   })
   """
